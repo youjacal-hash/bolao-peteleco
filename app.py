@@ -8,10 +8,7 @@ import pytz
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 app.secret_key = os.environ.get('SESSION_SECRET', 'copa-peteleco-2026-secret')
-
-# Ajuste de caminho absoluto para o banco de dados SQLite no servidor linux
-basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'copa_peteleco.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///copa_peteleco.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -185,7 +182,7 @@ def perfil():
         user.avatar_url = new_avatar if new_avatar else None
         db.session.commit()
         session['username'] = user.username
-        flash('Perfil updated successfully!', 'success')
+        flash('Perfil updated com sucesso!', 'success')
         return redirect(url_for('perfil'))
     return render_template('perfil.html', user=user)
 
