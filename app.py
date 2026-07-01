@@ -8,7 +8,10 @@ import pytz
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 app.secret_key = os.environ.get('SESSION_SECRET', 'copa-peteleco-2026-secret')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///copa_peteleco.db'
+
+# Ajuste de caminho absoluto para o banco de dados SQLite no servidor linux
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'copa_peteleco.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -66,8 +69,7 @@ def calculate_points(pred_home, pred_away, real_home, real_away):
     return 0
 
 def get_ranking():
-    users = User.query.order_by(User.total_points.desc()).all()
-    return users
+    return User.query.order_by(User.total_points.desc()).all()
 
 def seed_games():
     if Game.query.count() > 0:
@@ -183,7 +185,7 @@ def perfil():
         user.avatar_url = new_avatar if new_avatar else None
         db.session.commit()
         session['username'] = user.username
-        flash('Perfil atualizado com sucesso!', 'success')
+        flash('Perfil updated successfully!', 'success')
         return redirect(url_for('perfil'))
     return render_template('perfil.html', user=user)
 
@@ -377,14 +379,6 @@ def admin_update_points():
 
 with app.app_context():
     db.create_all()
-    # Migração: adiciona avatar_url se não existir no banco
-    from sqlalchemy import text
-    try:
-        with db.engine.connect() as conn:
-            conn.execute(text('ALTER TABLE user ADD COLUMN avatar_url VARCHAR(500)'))
-            conn.commit()
-    except Exception:
-        pass
     seed_games()
 
 if __name__ == '__main__':
