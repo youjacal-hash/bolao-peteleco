@@ -2,4 +2,4 @@ Flask==3.1.1
 Flask-SQLAlchemy==3.1.1
 pytz==2024.1
 gunicorn==23.0.0
-postgresql://neondb_owner:npg_gyYDqKE94JzQ@ep-patient-truth-acso21i2.sa-east-1.aws.neon.tech/neondb?sslmode=require
+psycopg2-binary==2.9.9
