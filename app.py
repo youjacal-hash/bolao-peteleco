@@ -8,7 +8,15 @@ import pytz
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 app.secret_key = os.environ.get('SESSION_SECRET', 'copa-peteleco-2026-secret')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/copa_peteleco.db'
+# Pega a URL do Neon de forma segura através das configurações do Render
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    # Correção necessária: o Render envia 'postgres://', mas o SQLAlchemy exige 'postgresql://'
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///copa_peteleco.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
