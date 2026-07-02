@@ -384,7 +384,7 @@ def admin_update_points():
 
 with app.app_context():
     db.create_all()
-    seed_games()
+    # seed_games()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
